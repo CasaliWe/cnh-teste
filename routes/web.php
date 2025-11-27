@@ -9,6 +9,8 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::get('/esqueci-senha', [AuthController::class, 'showForgotPasswordForm'])->name('esqueci-senha');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/esqueci-senha', [AuthController::class, 'forgotPassword'])->name('forgot-password');
+Route::get('/auth/redirect/google', [AuthController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/callback/google', [AuthController::class, 'callback']);
 
 
 // Rotas privadas (protegidas pelo middleware auth)

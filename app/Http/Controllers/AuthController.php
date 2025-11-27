@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Mail\NewUserPassword;
@@ -129,7 +130,7 @@ class AuthController extends Controller
         return view('client.profile');
     }
 
-    // Registrar novo usuário via POST
+    // Registrar novo usuário via POST (req do Kirvano)
     public function register(Request $request)
     {
         $request->validate([
@@ -163,5 +164,33 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+
+    // login com google redirect
+    public function redirect()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    // login com google callback
+    public function callback()
+    {
+        $googleUser = Socialite::driver('google')->user();
+
+        // Tenta encontrar usuário pelo e-mail
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        // Se não existir devolve erro avisando que o usuário não está cadastrado
+        if (!$user) {
+            return redirect('/login')->withErrors([
+                'email' => 'Esse e-mail não está cadastrado em nossos registros.',
+            ])->onlyInput('email');
+        }
+
+        // Autentica o usuário
+        Auth::login($user, true);
+
+        return redirect()->intended('/');
     }
 }
