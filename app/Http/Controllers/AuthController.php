@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Mail\NewUserPassword;
+use App\Mail\NewUserPasswordReset;
 
 
 class AuthController extends Controller
@@ -33,15 +34,34 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        // Verifica se o usuário existe pelo e-mail
+        $user = \App\Models\User::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Esse e-mail não está cadastrado em nossos registros.',
+            ])->onlyInput('email');
+        }
+
+        // Verifica se a senha confere
+        if (!\Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
+            return back()->withErrors([
+                'password' => 'A senha informada está incorreta.',
+            ])->onlyInput('email');
+        }
+
+        // Se passou pelas verificações, tenta autenticar normalmente
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
 
+        // Fallback (caso raro)
         return back()->withErrors([
-            'email' => 'As credenciais fornecidas não conferem com nossos registros.',
+            'email' => 'Não foi possível autenticar. Tente novamente.',
         ])->onlyInput('email');
     }
+
 
 
     // Processar o logout
@@ -52,6 +72,47 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         
         return redirect('/login');
+    }
+
+
+    // Mostrar o formulário de recuperação de senha
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    
+    // Processar solicitação de recuperação de senha
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ], [
+            'email.required' => 'O campo e-mail é obrigatório.',
+            'email.email' => 'Por favor, digite um e-mail válido.',
+        ]);
+
+        // Verifica se o e-mail existe no banco de dados
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Este e-mail não está cadastrado em nosso sistema.',
+            ])->onlyInput('email');
+        }
+
+        // Gerar nova senha aleatória de 8 caracteres
+        $newPassword = Str::random(8);
+
+        // Atualizar a senha do usuário no banco de dados
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        // Enviar a nova senha por e-mail
+        Mail::to($user->email)->send(new NewUserPasswordReset($user, $newPassword));
+
+        // Retornar uma mensagem de sucesso
+        return back()->with('status', 'Enviamos uma nova senha para seu seu e-mail!');
     }
 
 
