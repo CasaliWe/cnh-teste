@@ -7,8 +7,14 @@ use App\Http\Controllers\AuthController;
 // Rota pública - formulário de login
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::get('/esqueci-senha', [AuthController::class, 'showForgotPasswordForm'])->name('esqueci-senha');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/esqueci-senha', [AuthController::class, 'forgotPassword'])->name('forgot-password');
+
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:5,1'); // máximo 5 tentativas por minuto
+
+Route::post('/esqueci-senha', [AuthController::class, 'forgotPassword'])
+    ->middleware('throttle:3,1') // máximo 3 tentativas por minuto
+    ->name('forgot-password');
+
 Route::get('/auth/redirect/google', [AuthController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/callback/google', [AuthController::class, 'callback']);
 

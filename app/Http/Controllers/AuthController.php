@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\ForgotPasswordRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\User;
-use App\Mail\NewUserPassword;
 use App\Mail\NewUserPasswordReset;
 
 
@@ -28,38 +30,17 @@ class AuthController extends Controller
 
 
     // Processar o login
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $credentials = $request->only('email', 'password');
 
-        // Verifica se o usuário existe pelo e-mail
-        $user = \App\Models\User::where('email', $credentials['email'])->first();
-
-        if (!$user) {
-            return back()->withErrors([
-                'email' => 'Esse e-mail não está cadastrado em nossos registros.',
-            ])->onlyInput('email');
-        }
-
-        // Verifica se a senha confere
-        if (!\Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
-            return back()->withErrors([
-                'password' => 'A senha informada está incorreta.',
-            ])->onlyInput('email');
-        }
-
-        // Se passou pelas verificações, tenta autenticar normalmente
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
 
-        // Fallback (caso raro)
         return back()->withErrors([
-            'email' => 'Não foi possível autenticar. Tente novamente.',
+            'email' => 'As credenciais fornecidas não conferem com nossos registros.',
         ])->onlyInput('email');
     }
 
@@ -84,15 +65,8 @@ class AuthController extends Controller
 
     
     // Processar solicitação de recuperação de senha
-    public function forgotPassword(Request $request)
+    public function forgotPassword(ForgotPasswordRequest $request)
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-        ], [
-            'email.required' => 'O campo e-mail é obrigatório.',
-            'email.email' => 'Por favor, digite um e-mail válido.',
-        ]);
-
         // Verifica se o e-mail existe no banco de dados
         $user = User::where('email', $request->email)->first();
         
@@ -102,67 +76,25 @@ class AuthController extends Controller
             ])->onlyInput('email');
         }
 
-        // Gerar nova senha aleatória de 8 caracteres
-        $newPassword = Str::random(8);
-
-        // Atualizar a senha do usuário no banco de dados
-        $user->password = Hash::make($newPassword);
-        $user->save();
-
-        // Enviar a nova senha por e-mail
-        Mail::to($user->email)->send(new NewUserPasswordReset($user, $newPassword));
-
-        // Retornar uma mensagem de sucesso
-        return back()->with('status', 'Enviamos uma nova senha para seu seu e-mail!');
-    }
-
-
-    // Mostrar o dashboard
-    public function dashboard()
-    {
-        return view('dashboard.index');
-    }
-
-
-    // Mostrar o perfil
-    public function profile()
-    {
-        return view('client.profile');
-    }
-
-    // Registrar novo usuário via POST (req do Kirvano)
-    public function register(Request $request)
-    {
-        $request->validate([
-            'email' => ['required', 'email', 'unique:users'],
-        ]);
-
-        // Gerar senha aleatória de 8 caracteres
-        $randomPassword = Str::random(8);
-
-        // Criar o usuário
-        $user = User::create([
-            'name' => explode('@', $request->email)[0], // Usar a parte antes do @ como nome
-            'email' => $request->email,
-            'password' => Hash::make($randomPassword),
-        ]);
-
-        // Enviar email com a senha
         try {
-            Mail::to($user->email)->send(new NewUserPassword($user, $randomPassword));
-            
-            return response()->json([
-                'message' => 'Usuário criado com sucesso! A senha foi enviada para o email.',
-                'user_id' => $user->id
-            ], 201);
+            DB::transaction(function () use ($user) {
+                // Gerar nova senha aleatória de 8 caracteres
+                $newPassword = Str::random(8);
+
+                // Atualizar a senha do usuário no banco de dados
+                $user->update(['password' => Hash::make($newPassword)]);
+
+                // Enviar a nova senha por e-mail
+                Mail::to($user->email)->send(new NewUserPasswordReset($user, $newPassword));
+            });
+
+            // Retornar uma mensagem de sucesso
+            return back()->with('status', 'Enviamos uma nova senha para seu e-mail!');
         } catch (\Exception $e) {
-            // Se falhar o envio do email, deletar o usuário criado
-            $user->delete();
-            
-            return response()->json([
-                'message' => 'Erro ao enviar email. Tente novamente.',
-                'error' => $e->getMessage()
-            ], 500);
+            // Se falhar, a transaction já fez rollback automaticamente
+            return back()->withErrors([
+                'email' => 'Erro ao processar sua solicitação. Tente novamente.',
+            ])->onlyInput('email');
         }
     }
 
@@ -192,5 +124,19 @@ class AuthController extends Controller
         Auth::login($user, true);
 
         return redirect()->intended('/');
+    }
+
+
+    // Mostrar o dashboard
+    public function dashboard()
+    {
+        return view('dashboard.index');
+    }
+
+
+    // Mostrar o perfil
+    public function profile()
+    {
+        return view('client.profile');
     }
 }
