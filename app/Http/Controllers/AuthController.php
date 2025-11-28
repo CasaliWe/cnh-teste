@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -35,10 +36,12 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            Log::info('Login realizado', ['email' => $credentials['email'], 'ip' => $request->ip()]);
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
 
+        Log::warning('Tentativa de login falhou', ['email' => $credentials['email'], 'ip' => $request->ip()]);
         return back()->withErrors([
             'email' => 'As credenciais fornecidas não conferem com nossos registros.',
         ])->onlyInput('email');
@@ -49,6 +52,7 @@ class AuthController extends Controller
     // Processar o logout
     public function logout(Request $request)
     {
+        Log::info('Logout realizado', ['user_id' => Auth::id(), 'ip' => $request->ip()]);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -71,6 +75,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         
         if (!$user) {
+            Log::warning('Tentativa recuperação senha email inexistente', ['email' => $request->email, 'ip' => $request->ip()]);
             return back()->withErrors([
                 'email' => 'Este e-mail não está cadastrado em nosso sistema.',
             ])->onlyInput('email');
@@ -88,9 +93,11 @@ class AuthController extends Controller
                 Mail::to($user->email)->send(new NewUserPasswordReset($user, $newPassword));
             });
 
+            Log::info('Recuperação de senha processada', ['email' => $request->email, 'ip' => $request->ip()]);
             // Retornar uma mensagem de sucesso
             return back()->with('status', 'Enviamos uma nova senha para seu e-mail!');
         } catch (\Exception $e) {
+            Log::error('Erro na recuperação de senha', ['email' => $user->email, 'error' => $e->getMessage()]);
             // Se falhar, a transaction já fez rollback automaticamente
             return back()->withErrors([
                 'email' => 'Erro ao processar sua solicitação. Tente novamente.',
@@ -115,6 +122,7 @@ class AuthController extends Controller
 
         // Se não existir devolve erro avisando que o usuário não está cadastrado
         if (!$user) {
+            Log::warning('Login Google falhou - email não cadastrado', ['email' => $googleUser->getEmail()]);
             return redirect('/login')->withErrors([
                 'email' => 'Esse e-mail não está cadastrado em nossos registros.',
             ])->onlyInput('email');
@@ -122,6 +130,7 @@ class AuthController extends Controller
 
         // Autentica o usuário
         Auth::login($user, true);
+        Log::info('Login Google realizado', ['email' => $googleUser->getEmail(), 'user_id' => $user->id]);
 
         return redirect()->intended('/');
     }
