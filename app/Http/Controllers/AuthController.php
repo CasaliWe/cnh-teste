@@ -125,18 +125,4 @@ class AuthController extends Controller
 
         return redirect()->intended('/');
     }
-
-
-    // Mostrar o dashboard
-    public function dashboard()
-    {
-        return view('dashboard.index');
-    }
-
-
-    // Mostrar o perfil
-    public function profile()
-    {
-        return view('client.profile');
-    }
 }

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 
 
 // Rota pública - formulário de login
@@ -21,7 +23,7 @@ Route::get('/auth/callback/google', [AuthController::class, 'callback']);
 
 // Rotas privadas (protegidas pelo middleware auth)
 Route::middleware('auth')->group(function () {
-    Route::get('/',         [AuthController::class, 'dashboard'])->name('dashboard');
-    Route::get('/perfil',   [AuthController::class, 'profile'])->name('profile');
+    Route::get('/',         [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/perfil',   [ProfileController::class, 'profile'])->name('profile');
     Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
 });
