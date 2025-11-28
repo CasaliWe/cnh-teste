@@ -118,11 +118,12 @@ class AuthController extends Controller
         $googleUser = Socialite::driver('google')->user();
 
         // Tenta encontrar usuário pelo e-mail
-        $user = User::where('email', $googleUser->getEmail())->first();
+        $email = is_object($googleUser) && property_exists($googleUser, 'email') ? $googleUser->email : $googleUser->getEmail();
+        $user = User::where('email', $email)->first();
 
         // Se não existir devolve erro avisando que o usuário não está cadastrado
         if (!$user) {
-            Log::warning('Login Google falhou - email não cadastrado', ['email' => $googleUser->getEmail()]);
+            Log::warning('Login Google falhou - email não cadastrado', ['email' => $email]);
             return redirect('/login')->withErrors([
                 'email' => 'Esse e-mail não está cadastrado em nossos registros.',
             ])->onlyInput('email');
@@ -130,7 +131,7 @@ class AuthController extends Controller
 
         // Autentica o usuário
         Auth::login($user, true);
-        Log::info('Login Google realizado', ['email' => $googleUser->getEmail(), 'user_id' => $user->id]);
+        Log::info('Login Google realizado', ['email' => $email, 'user_id' => $user->id]);
 
         return redirect()->intended('/');
     }

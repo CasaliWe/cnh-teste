@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\api\ApiRegisterRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +14,7 @@ use App\Mail\NewUserPassword;
 class AuthController extends Controller
 {
     // Registrar novo usuário via POST (req do Kirvano)
-    public function register(RegisterRequest $request)
+    public function register(ApiRegisterRequest $request)
     {
         // Gerar senha aleatória de 8 caracteres
         $randomPassword = Str::random(8);
