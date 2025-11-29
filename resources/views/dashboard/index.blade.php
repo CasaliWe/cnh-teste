@@ -89,7 +89,7 @@
                 </div>
 
                 <!-- Start Button -->
-                <a href="{{ route('start') }}" class="block w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-colors text-center">
+                <a href="{{ route('start') }}" class="block w-full text-black font-semibold py-3 rounded-lg transition-colors text-center shadow-md" style="background-color: #facc15 !important;">
                     Iniciar novo Simulado
                 </a>
             </div>
@@ -190,7 +190,7 @@
                         </div>
 
                         <!-- Start Button -->
-                        <a href="{{ route('start') }}" class="block w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-4 rounded-xl transition-all duration-200 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-center">
+                        <a href="{{ route('start') }}" class="block w-full text-black font-bold py-4 rounded-xl transition-all duration-200 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-center" style="background-color: #facc15 !important;">
                             Iniciar novo Simulado
                         </a>
                     </div>

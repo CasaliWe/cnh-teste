@@ -26,5 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/',         [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/start',    [DashboardController::class, 'start'])->name('start');
     Route::get('/perfil',   [ProfileController::class, 'profile'])->name('profile');
+    
+    // Rotas de atualização do perfil
+    Route::post('/perfil/nome',  [ProfileController::class, 'updateName'])->name('profile.update-name');
+    Route::post('/perfil/senha', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    
     Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
 });
