@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SimuladoController;
 
 
 // Rota pública - formulário de login
@@ -30,6 +31,9 @@ Route::middleware('auth')->group(function () {
     // Rotas de atualização do perfil
     Route::post('/perfil/nome',  [ProfileController::class, 'updateName'])->name('profile.update-name');
     Route::post('/perfil/senha', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+
+    // Rota do simulado
+    Route::get('/simulado/{id}', [SimuladoController::class, 'mostrar'])->name('simulado-mostrar');
     
     Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
 });
