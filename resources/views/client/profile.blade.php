@@ -3,142 +3,181 @@
 @section('title', 'Perfil - ' . config('app.name'))
 
 @section('content')
-<div class="min-h-screen bg-[#FDFDFC] dark:bg-[#0a0a0a]">
-    <!-- Header -->
-    <header class="bg-[#1b1b18] dark:bg-[#161615] shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
-                <h1 class="text-xl font-semibold text-white">Perfil {{ config('app.name') }}</h1>
-                <nav class="flex items-center space-x-4">
-                    <a 
-                        href="{{ route('dashboard') }}" 
-                        class="px-4 py-2 text-white dark:text-[#EDEDEC] hover:bg-[#3E3E3A] dark:hover:bg-[#eeeeec] hover:text-white dark:hover:text-[#1C1C1A] rounded-md text-sm font-medium transition-colors"
-                    >
-                        Dashboard
-                    </a>
-                    <a 
-                        href="{{ route('profile') }}" 
-                        class="px-4 py-2 bg-[#3E3E3A] dark:bg-[#eeeeec] text-white dark:text-[#1C1C1A] rounded-md text-sm font-medium"
-                    >
-                        Perfil
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button 
-                            type="submit" 
-                            class="px-4 py-2 bg-[#F53003] dark:bg-[#FF4433] text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
-                        >
-                            Sair
-                        </button>
-                    </form>
-                </nav>
+<div class="min-h-screen bg-gradient-to-br from-[#4A5568] via-[#5A6B7D] to-[#6B7A92]">
+    <!-- Mobile Layout -->
+    <div class="lg:hidden">
+        <!-- Top Header -->
+        <div class="bg-[#4A5568] px-5 py-6 flex items-start justify-between">
+            <div class="text-left">
+                <div class="text-xs text-gray-300">Bem vindo,</div>
+                <div class="text-sm font-semibold text-white">{{ Auth::user()->name }}</div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <!-- Ícone de Dashboard -->
+                <a href="{{ route('dashboard') }}" class="p-1.5 text-gray-300 hover:text-blue-400 rounded transition-colors" title="Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m0 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6" />
+                    </svg>
+                </a>
+                <!-- Ícone de Logout -->
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="p-1.5 text-gray-300 hover:text-red-400 rounded transition-colors" title="Sair">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+                </form>
             </div>
         </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="bg-white dark:bg-[#161615] rounded-lg shadow-lg p-8">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold text-[#1b1b18] dark:text-[#EDEDEC] mb-2">
-                    Meu Perfil
-                </h2>
-                <p class="text-[#706f6c] dark:text-[#A1A09A]">
-                    Gerencie suas informações pessoais
+        <!-- Main Content -->
+        <div class="p-4">
+            <!-- Logo and Character Section -->
+            <div class="mb-0 flex flex-col items-center">
+                <img src="{{ asset('logo.png') }}" alt="CNH sem segredo" class="w-48 h-auto">
+            </div>
+
+            <!-- Dynamic Text Block -->
+            <div class="bg-white rounded-lg p-4 mb-6 min-h-[120px] flex flex-col justify-center">
+                <h4 class="text-yellow-600 font-semibold text-base mb-2 text-center">Motora diz:</h4>
+                <p class="text-gray-800 text-sm leading-relaxed text-center">
+                    Aqui estão seus números. Continue melhorando, a taxa recomendada é 80% para ir para prova mais tranquilo.
                 </p>
             </div>
-            
-            <!-- Profile Information -->
-            <div class="space-y-6">
-                <!-- Basic Information -->
-                <div class="bg-[#FDFDFC] dark:bg-[#3E3E3A] rounded-lg p-6 border border-[#e3e3e0] dark:border-[#3E3E3A]">
-                    <h3 class="text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC] mb-6">
-                        Informações Básicas
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] mb-2">
-                                Nome Completo
-                            </label>
-                            <div class="px-3 py-2 bg-gray-50 dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-md text-[#1b1b18] dark:text-[#EDEDEC]">
-                                {{ Auth::user()->name }}
-                            </div>
-                        </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] mb-2">
-                                Email
-                            </label>
-                            <div class="px-3 py-2 bg-gray-50 dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-md text-[#1b1b18] dark:text-[#EDEDEC]">
-                                {{ Auth::user()->email }}
-                            </div>
+            <!-- Perfil Forms -->
+            <div class="space-y-4">
+                <!-- Editar Nome -->
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="text-base font-semibold text-gray-800 mb-3">Editar Nome</h3>
+                    <form>
+                        <div class="mb-3">
+                            <label for="name_mobile" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                            <input type="text" id="name_mobile" name="name" value="{{ Auth::user()->name }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm">
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] mb-2">
-                                Membro desde
-                            </label>
-                            <div class="px-3 py-2 bg-gray-50 dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-md text-[#1b1b18] dark:text-[#EDEDEC]">
-                                {{ Auth::user()->created_at->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] mb-2">
-                                Status do Email
-                            </label>
-                            <div class="px-3 py-2 bg-gray-50 dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-md">
-                                @if(Auth::user()->email_verified_at)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                        ✓ Verificado em {{ Auth::user()->email_verified_at->format('d/m/Y H:i') }}
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                        ✗ Não verificado
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                        <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2.5 rounded-lg transition-colors text-sm">
+                            Atualizar Nome
+                        </button>
+                    </form>
                 </div>
 
-                <!-- Account Actions -->
-                <div class="bg-[#FDFDFC] dark:bg-[#3E3E3A] rounded-lg p-6 border border-[#e3e3e0] dark:border-[#3E3E3A]">
-                    <h3 class="text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC] mb-6">
-                        Ações da Conta
-                    </h3>
-                    <div class="flex flex-wrap gap-4">
-                        <button class="px-4 py-2 bg-[#1b1b18] dark:bg-[#eeeeec] text-white dark:text-[#1C1C1A] rounded-md hover:bg-black dark:hover:bg-white transition-colors">
-                            Alterar Senha
+                <!-- Atualizar Senha -->
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="text-base font-semibold text-gray-800 mb-3">Atualizar Senha</h3>
+                    <form>
+                        <div class="mb-3">
+                            <label for="password_mobile" class="block text-sm font-medium text-gray-700 mb-1">Nova Senha</label>
+                            <input type="password" id="password_mobile" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password_confirmation_mobile" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+                            <input type="password" id="password_confirmation_mobile" name="password_confirmation" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm">
+                        </div>
+                        <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2.5 rounded-lg transition-colors text-sm">
+                            Atualizar Senha
                         </button>
-                        <button class="px-4 py-2 border border-[#e3e3e0] dark:border-[#3E3E3A] text-[#1b1b18] dark:text-[#EDEDEC] rounded-md hover:bg-gray-50 dark:hover:bg-[#161615] transition-colors">
-                            Editar Perfil
-                        </button>
-                        @if(!Auth::user()->email_verified_at)
-                        <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                            Verificar Email
-                        </button>
-                        @endif
-                    </div>
-                    <p class="mt-4 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                        <strong>Nota:</strong> As funcionalidades de edição estão em desenvolvimento.
-                    </p>
-                </div>
-
-                <!-- Security Information -->
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-4">
-                        🔒 Informações de Segurança
-                    </h3>
-                    <ul class="space-y-2 text-sm text-yellow-700 dark:text-yellow-300">
-                        <li>• Sua conta foi criada automaticamente via sistema</li>
-                        <li>• Recomendamos alterar sua senha inicial assim que possível</li>
-                        <li>• Nunca compartilhe suas credenciais com terceiros</li>
-                        <li>• Entre em contato conosco em caso de problemas de acesso</li>
-                    </ul>
+                    </form>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+    <!-- Mobile Layout -->
+
+    <!-- Desktop Layout -->
+    <div class="hidden lg:block">
+        <!-- Main Content -->
+        <div class="flex min-h-screen">
+            <!-- Left Section -->
+            <div class="w-1/2 p-8 flex flex-col justify-center items-center">
+                <!-- Logo and Character (sem espaçamento com o bloco) -->
+                <div class="mb-0">
+                    <img src="{{ asset('logo.png') }}" alt="CNH sem segredo" class="w-[400px] h-auto">
+                </div>
+
+                <!-- Dynamic Text Block -->
+                <div class="bg-white rounded-lg p-6 max-w-md min-h-[160px] flex flex-col justify-center shadow-lg">
+                    <h4 class="text-yellow-600 font-semibold text-[28px] mb-3">Motora diz:</h4>
+                    <p class="text-gray-800 text-[25px] leading-relaxed text-left">
+                        Aqui estão seus números. Continue melhorando, a taxa recomendada é 80% para ir para prova mais tranquilo.
+                    </p>
+                </div>
+            </div>
+            <!-- Left Section -->
+
+
+            <!-- Right Section -->
+            <div class="w-1/2 bg-gray-200 p-8">
+                <!-- Header da seção direita (fora do bloco) -->
+                <div class="flex items-start justify-between mb-12">
+                    <div class="text-left">
+                        <div class="text-base text-gray-600">Bem vindo,</div>
+                        <div class="text-lg font-semibold text-gray-800">{{ Auth::user()->name }}</div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <!-- Ícone de Dashboard -->
+                        <a href="{{ route('dashboard') }}" class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Dashboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m0 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6" />
+                            </svg>
+                        </a>
+                        <!-- Ícone de Logout -->
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Sair">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Bloco do perfil -->
+                <div class="mt-[15%] flex justify-center">
+                    <div class="bg-white rounded-xl p-6 w-full max-w-lg shadow-xl space-y-6">
+                        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Perfil</h1>
+                        
+                        <!-- Editar Nome -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">Editar Nome</h3>
+                            <form>
+                                <div class="mb-4">
+                                    <label for="name_desktop" class="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+                                    <input type="text" id="name_desktop" name="name" value="{{ Auth::user()->name }}" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                </div>
+                                <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                    Atualizar Nome
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Linha separadora -->
+                        <div class="border-t border-gray-200"></div>
+
+                        <!-- Atualizar Senha -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">Atualizar Senha</h3>
+                            <form>
+                                <div class="mb-4">
+                                    <label for="password_desktop" class="block text-sm font-medium text-gray-700 mb-2">Nova Senha</label>
+                                    <input type="password" id="password_desktop" name="password" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="password_confirmation_desktop" class="block text-sm font-medium text-gray-700 mb-2">Confirmar Senha</label>
+                                    <input type="password" id="password_confirmation_desktop" name="password_confirmation" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                </div>
+                                <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                    Atualizar Senha
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Section -->
+        </div>
+    </div>
+    <!-- Desktop Layout -->
 </div>
 @endsection

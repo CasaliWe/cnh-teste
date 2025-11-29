@@ -12,4 +12,10 @@ class DashboardController extends Controller
     {
         return view('dashboard.index');
     }
+
+    // Mostrar o start
+    public function start()
+    {
+        return view('dashboard.start');
+    }
 }

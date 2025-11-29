@@ -24,6 +24,7 @@ Route::get('/auth/callback/google', [AuthController::class, 'callback']);
 // Rotas privadas (protegidas pelo middleware auth)
 Route::middleware('auth')->group(function () {
     Route::get('/',         [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/start',    [DashboardController::class, 'start'])->name('start');
     Route::get('/perfil',   [ProfileController::class, 'profile'])->name('profile');
     Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
 });
