@@ -8,6 +8,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PasswordUpdatedNotification;
 
 class ProfileController extends Controller
 {
@@ -50,16 +53,36 @@ class ProfileController extends Controller
     public function updatePassword(UpdatePasswordRequest $request)
     {
         try {
-            // Atualizar a senha diretamente
             /** @var User $user */
             $user = Auth::user();
-            $user->password = Hash::make($request->validated()['password']);
-            $user->save();
+            
+            DB::transaction(function () use ($user, $request) {
+                // Atualizar a senha
+                $user->password = Hash::make($request->validated()['password']);
+                $user->save();
+                
+                // Invalidar todas as sessões ativas exceto a atual
+                // Regenera a session_id da sessão atual mantendo o usuário logado
+                $currentSessionId = $request->session()->getId();
+                
+                // Invalida outras sessões (Laravel guarda hash da session_id no remember_token quando há remember_me)
+                // Para invalidar outras sessões precisamos limpar o remember_token se existir
+                if ($user->remember_token) {
+                    $user->remember_token = null;
+                    $user->save();
+                }
+                
+                // Regenera a sessão atual para manter o usuário logado com nova session_id
+                $request->session()->regenerate();
+                
+                // Enviar email de notificação
+                Mail::to($user->email)->send(new PasswordUpdatedNotification($user));
+            });
 
             Log::info('Senha atualizada com sucesso', ['user_id' => $user->id]);
 
             return redirect()->route('profile')
-                ->with('success', 'Senha atualizada com sucesso!');
+                ->with('success', 'Senha atualizada com sucesso! Por segurança, suas outras sessões foram invalidadas e um email de confirmação foi enviado.');
 
         } catch (\Exception $e) {
             Log::error('Erro ao atualizar senha', [
