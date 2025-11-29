@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateNameRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Jobs\SendPasswordUpdatedNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\PasswordUpdatedNotification;
 
 class ProfileController extends Controller
 {
@@ -75,8 +74,8 @@ class ProfileController extends Controller
                 // Regenera a sessão atual para manter o usuário logado com nova session_id
                 $request->session()->regenerate();
                 
-                // Enviar email de notificação
-                Mail::to($user->email)->send(new PasswordUpdatedNotification($user));
+                // Disparar job para enviar email de notificação
+                SendPasswordUpdatedNotification::dispatch($user);
             });
 
             Log::info('Senha atualizada com sucesso', ['user_id' => $user->id]);
